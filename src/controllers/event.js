@@ -41,8 +41,24 @@ export const createEvent=async(req,res,next)=>{
 export const getEvents=async(req,res,next)=>{
     try {
         const events=await Event.find({start:{$gt:new Date()}});
+         const bookingData = await Book.find({});
+        const data = events.map((event) => {
+            const bookingCount = bookingData.filter(
+                (book) => book.eventId.toString() === event._id.toString()
+            ).length;
+            const eventObj = event.toObject();
+            return {
+                ...eventObj,
+                seatRegistered: bookingCount,
+                seatLeft: event.eventCapacity - bookingCount,
+                percentage:
+                    event.eventCapacity > 0
+                        ? (bookingCount / event.eventCapacity) * 100
+                        : 0,
+            };
+        });
        
-        res.status(200).json({success:true,events})
+        res.status(200).json({success:true,events:data})
     } catch (error) {
         return next(new customError(error.message || "error getting events",500));
     }
