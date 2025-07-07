@@ -21,7 +21,7 @@ export const isAuthenticatedAdmin=async(req,res,next)=>{
         if(!token){
             return res.status(401).json({success:false,message:"Unauthorized or login session expired please login again"});
         }
-        console.log("token",token)
+        // console.log("token",token)
         const decoded=jwt.verify(token,process.env.JWT_SECRET);
         req.isAdmin=decoded.isAdmin;
         next();
